@@ -1,0 +1,7 @@
+{
+	"cmd": ["/usr/local/bin/moonc", "-t", "${project_path}/release", "."],
+	"file_regex": "^.*/(.*?) >> Failed to parse:",
+	"line_regex": "^ \\[(.*)\\]",
+	"selector": "source.moonscript",
+	"working_dir": "${project_path}/src"
+}
