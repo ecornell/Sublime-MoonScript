@@ -1,24 +1,41 @@
 import sublime, sublime_plugin
 
+import moonscript_common as ms
+
 import subprocess, re, os, threading, tempfile, datetime, uuid
 from subprocess import Popen, PIPE
 
 
-try:
-    STARTUP_INFO = subprocess.STARTUPINFO()
-    STARTUP_INFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    STARTUP_INFO.wShowWindow = subprocess.SW_HIDE
-except (AttributeError):
-    STARTUP_INFO = None
 
-AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS       
+AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS   
 
-# from subprocess import check_output
+PAT_PARSE = re.compile(
+    r'(?P<g1>{)|'
+    r'(?P<g2>})|'
+    r'(?P<g3>\[\d+\])|'
+    r'(?P<g4>""")|'
+    r'(?P<g5>\n)'
+    )   
+
+def pat_parse_repl( match ):
+    value = ''
+    if match.group('g1'):
+        value = '['
+    elif match.group('g2'):
+        value = ']'
+    elif match.group('g3'):
+        value = ''
+    elif match.group('g4'):
+        value = '"\'"'
+    elif match.group('g5'):
+        value = ','
+    return value 
 
 
 class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
     sugs = []
+
 
     def on_query_completions(self, view, prefix, locations):
 
@@ -30,32 +47,29 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
        
 
         args = ['moonc', '-T','/Users/eli/dev/projects/WordPile/src/test.moon']
-        out, err, _ = self.runcmd(args)
-
+        out, err, _ = ms.runcmd(args)
 
         if len(out) == 0:
             return []
 
         # print 'out->' + out
 
-        out = re.sub("\n", ",", out)
-        out = re.sub("\}", "]", out)
-        out = re.sub("\{", "[", out)
-        out = re.sub("\[\d+\]", "", out)
-        out = re.sub('"""', '"\'"', out)
-        
+        out = PAT_PARSE.sub(pat_parse_repl, out)
+
+        # print 'out->' + out
+
         tree = eval(out[:-1])
 
         # print 'tree->' + str(tree)
 
         self.sugs = []
-
         
-        # for n in tree:
         self.parse( tree, 1 )
 
         return list(set(self.sugs))
-        # return [ ('test','test') ]
+
+
+
 
 
     def addSug(self, s, t):
@@ -75,20 +89,26 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
             cmd = a[0]
 
-            print 'cmd->' + str(cmd) + ' ' + str(a) 
+            # print 'cmd->' + str(cmd) + ' ' + str(a) 
 
             if cmd == 'assign':
 
                 for b in a[1]:
 
                     if isinstance( b, list ):
-                        self.addSug( b[1] , '@ ' + cmd )
+
+                        if b[0] == 'self':
+                            self.addSug( b[1] , '@ ' + cmd )
 
                     else:
                         self.addSug( str(b), cmd )
             
                 if isinstance( a[2][0], list):
                     self.parse( a[2], depth + 1)
+
+            elif cmd == 'call':
+
+                True
 
             elif cmd == 'class':
 
@@ -98,50 +118,6 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                 self.parse( a[3], depth + 1)
 
-            elif cmd == 'props':
-
-                nm = a[1][0]
-
-                ty = a[1][1][0]
-
-                if ty == 'fndef':
-
-                    self.addSug( nm, ty )  
-
-                else:
-
-                    self.addSug( nm, cmd )
-
-                self.parse( a[1][1], depth + 1)
-
-            elif cmd == 'table':
-
-                for b in a[1]:
-
-                    if isinstance( b[0], list ):
-                        self.addSug( b[0][1] , '@ ' + cmd )
-
-                    else:
-                        self.addSug( str(b[0]), cmd )
-
-                    self.parse( b[1], depth + 1)
-
-
-            elif cmd == 'self':
-
-                True 
-
-            elif cmd == 'string':
-
-                True 
-
-            elif cmd == 'number':
-
-                True 
-
-            elif cmd == 'fndef':
-
-                self.parse( a[4], depth + 1)
 
             elif cmd == 'case':
 
@@ -157,9 +133,41 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                     self.parse( b, depth + 1)
 
-            elif cmd == 'switch':
+            elif cmd == 'dot':
+
+                True
+
+            elif cmd == 'exp':
+
+                if isinstance( a[1], list ):
+
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'explist':
+
+                if isinstance( a[1], list ):
+
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'export':
+
+                True
+
+            elif cmd == 'false':
+
+                True
+
+            elif cmd == 'for':
 
                 self.parse( a[2], depth + 1)
+
+            elif cmd == 'fndef':
+
+                self.parse( a[4], depth + 1)
+
+            elif cmd == 'foreach':
+
+                self.parse( a[3], depth + 1)
 
             elif cmd == 'if':
 
@@ -169,57 +177,106 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                 self.parse( a[2], depth + 1)
 
-            elif cmd == 'true' or cmd == 'false' or cmd == 'nil':
+            elif cmd == 'index':
 
                 True
 
-            elif cmd == 'export':
+            elif cmd == 'length':
 
                 True
 
-            elif cmd == 'dot':
+            elif cmd == 'minus':
 
                 True
 
-            elif cmd == 'call':
+            elif cmd == 'nil':
 
                 True
+
+            elif cmd == 'not':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'number':
+
+                True 
+
+            elif cmd == 'parens':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'props':
+
+                nm = a[1][0]
+
+                ty = a[1][1][0]
+
+                if ty == 'fndef':
+
+                    parms = a[1][1][1]
+
+                    if len(parms) > 0:
+                        nm = nm + '( ' + ', '.join(str(x[0]) for x in parms) + ' )'
+                    else:
+                        nm = nm + '!'
+
+                    self.addSug( nm, ty )  
+
+                else:
+
+                    self.addSug( nm, cmd )
+
+                self.parse( a[1][1], depth + 1)                
+
+            elif cmd == 'return':
+
+                if isinstance( a[1], list ):
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'self':
+
+                True 
+
+            elif cmd == 'string':
+
+                True 
+
+            elif cmd == 'table':
+
+                for b in a[1]:
+                    if len(b) == 1:
+                        self.parse( b[0], depth + 1)
+                    else:
+                        if isinstance( b[0], list ):
+                            self.addSug( b[0][1] , '@ ' + cmd )
+                        else:
+                            self.addSug( str(b[0]), cmd )
+                        self.parse( b[1], depth + 1)
+
+            elif cmd == 'switch':
+
+                self.parse( a[2], depth + 1)
+
+            elif cmd == 'update':
+
+                True
+
+            elif cmd == 'with':
+
+                self.parse( a[2], depth + 1)
+
+            elif cmd == 'while':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'true':
+
+                True
+
+
+
 
             else:
                 print 'cmd not parsed - %s - %s' % (cmd, str(a) )
-
-
-
-
-
-    def runcmd(self, args, input=None, stdout=PIPE, stderr=PIPE, shell=False):
-
-        out = ""
-        err = ""
-        exc = None
-
-        #old_env = os.environ.copy()
-        #os.environ.update(env())
-        try:
-            p = Popen(args, stdout=stdout, stderr=stderr, stdin=PIPE,
-                startupinfo=STARTUP_INFO, shell=shell)
-            if isinstance(input, unicode):
-                input = input.encode('utf-8')
-            out, err = p.communicate(input=input)
-            out = out.decode('utf-8') if out else ''
-            err = err.decode('utf-8') if err else ''
-        except (Exception) as e:
-            # err = u'Error while running %s: %s' % (args[0], e)
-            print e
-            exc = e
-        #os.environ.update(old_env)
-        return (out, err, exc)
-
-
-
-
-        
-
-
 
 
