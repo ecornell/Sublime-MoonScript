@@ -31,6 +31,10 @@ def pat_parse_repl( match ):
         value = ','
     return value 
 
+def uniq(list):
+    seen = set()
+    return [value for value in list if value not in seen and not seen.add(value)]
+
 
 class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
@@ -42,11 +46,12 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
         pos = locations[0]
         scopes = view.scope_name(pos).split()
 
-        if 'source.moonscript' not in scopes :
+        if ('source.moonscript' not in scopes): # or (ms.setting('ms_complete_enabled', False) is not True):
             return []
        
+        cmd = ms.setting('moonc_cmd', 'moonc')
 
-        args = ['moonc', '-T','/Users/eli/dev/projects/WordPile/src/test.moon']
+        args = [cmd, '-T', '/Users/eli/dev/projects/WordPile/src/test.moon']
         out, err, _ = ms.runcmd(args)
 
         if len(out) == 0:
@@ -66,7 +71,7 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
         
         self.parse( tree, 1 )
 
-        return list(set(self.sugs))
+        return (uniq(self.sugs), AC_OPTS)
 
 
 
@@ -87,9 +92,12 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
         else:
 
-            cmd = a[0]
-
             # print 'cmd->' + str(cmd) + ' ' + str(a) 
+
+            if  not isinstance( a, list ):
+                return True
+            
+            cmd = a[0]
 
             if cmd == 'assign':
 
