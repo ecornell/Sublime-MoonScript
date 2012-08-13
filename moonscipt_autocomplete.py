@@ -7,7 +7,8 @@ from subprocess import Popen, PIPE
 
 
 
-AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS   
+AC_OPTS = True   
+# AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS   
 
 PAT_PARSE = re.compile(
     r'(?P<g1>{)|'
@@ -31,31 +32,89 @@ def pat_parse_repl( match ):
         value = ','
     return value 
 
-def uniq(list):
+def uniq(l):
     seen = set()
-    return [value for value in list if value not in seen and not seen.add(value)]
+    return [value for value in l if value[0] not in seen and not seen.add(value[0])]
 
 
 class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
-    sugs = []
+    
+    def __init__(self):
+        self.recompile_timer = None
+
+        self.sugs = []
+        self.fileTS = None
+
+    def return_completions(self, view, prefix):
+
+        fSugs = []
+
+        for s in self.sugs:
+            w = s[1]
+            f = True
+            for l in prefix:
+                if l not in w: 
+                    f = False
+                    break
+            if f:
+                fSugs.append(s)
+                # if len(fSugs) > 100:
+                    # break
+
+
+        # print len(fSugs)
+
+        if len(fSugs) == 1:
+            print fSugs
+
+        return fSugs
 
 
     def on_query_completions(self, view, prefix, locations):
 
+        # return [ ('hi\t!!!','!!!'), ('bye\t###','###') ]
+
+
+        # print prefix
+
+        # s = []
+
+        # self.sugs.append( ('hi\t!!!','!!!') )
+
+        # self.addSug('teee','***')
+
+        # l = uniq(self.sugs)
+
+        # return l
+
         pos = locations[0]
         scopes = view.scope_name(pos).split()
+
+        print ms.setting('ms_complete_enabled', False)
 
         if ('source.moonscript' not in scopes): # or (ms.setting('ms_complete_enabled', False) is not True):
             return []
        
+        currentFile = view.file_name()
+        if currentFile == None:
+            return []
+
+        currentFileTS = os.path.getmtime(currentFile)
+
+        print currentFileTS
+        if self.fileTS == currentFileTS:
+            return self.return_completions(view, prefix)
+
+        self.fileTS = currentFileTS
+
         cmd = ms.setting('moonc_cmd', 'moonc')
 
-        args = [cmd, '-T', '/Users/eli/dev/projects/WordPile/src/test.moon']
+        args = [cmd, '-T', currentFile]
         out, err, _ = ms.runcmd(args)
 
         if len(out) == 0:
-            return []
+            return self.sugs
 
         # print 'out->' + out
 
@@ -71,15 +130,21 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
         
         self.parse( tree, 1 )
 
-        return (uniq(self.sugs), AC_OPTS)
+        self.sugs = uniq(self.sugs)
+
+
+
+
+        return self.return_completions(view, prefix)
 
 
 
 
 
-    def addSug(self, s, t):
+    def addSug(self, s, t, depth=0):
 
-        self.sugs.append( ('~%s\t%s' % (str(s), str(t) ) , str(s) ) )
+        # self.sugs.append( ('%s\t%s' % ( '~' * depth + str(s), str(t) ) , str(s) ) )
+        self.sugs.append( ('%s\t%s' % ( str(s), str(t) ) , str(s) ) )
 
 
     def parse(self, a, depth):
@@ -106,10 +171,10 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
                     if isinstance( b, list ):
 
                         if b[0] == 'self':
-                            self.addSug( b[1] , '@ ' + cmd )
+                            self.addSug( b[1] , '@ ' + cmd, depth)
 
                     else:
-                        self.addSug( str(b), cmd )
+                        self.addSug( str(b), cmd, depth)
             
                 if isinstance( a[2][0], list):
                     self.parse( a[2], depth + 1)
@@ -122,7 +187,7 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                 nm = a[1]
 
-                self.addSug( nm, cmd )
+                self.addSug( nm, cmd, depth )
 
                 self.parse( a[3], depth + 1)
 
@@ -224,15 +289,15 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
                     parms = a[1][1][1]
 
                     if len(parms) > 0:
-                        nm = nm + '( ' + ', '.join(str(x[0]) for x in parms) + ' )'
+                        nm = nm #+ '( ' + ', '.join(str(x[0]) for x in parms) + ' )'
                     else:
-                        nm = nm + '!'
+                        nm = nm #+ '!'
 
-                    self.addSug( nm, ty )  
+                    self.addSug( nm, ty, depth )  
 
                 else:
 
-                    self.addSug( nm, cmd )
+                    self.addSug( nm, cmd, depth )
 
                 self.parse( a[1][1], depth + 1)                
 
@@ -256,7 +321,7 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
                         self.parse( b[0], depth + 1)
                     else:
                         if isinstance( b[0], list ):
-                            self.addSug( b[0][1] , '@ ' + cmd )
+                            self.addSug( b[0][1] , '@ ' + cmd, depth )
                         else:
                             self.addSug( str(b[0]), cmd )
                         self.parse( b[1], depth + 1)

@@ -76,22 +76,24 @@
             "name": "constant.numeric.moonscript"
         }, 
         {
-            "match": "\\b[A-Z]*\\b(?!:)", 
-            "name": "support.constant"
+            "match": "\\b[A-Z_]*\\b(?!:)", 
+            "name": "constant.other"
         }, 
-        {
-            "match": "=>|->", 
-            "name": "keyword.operator"
-        }, 
-        {
-            "match": "\\b(and|or|not)\\b", 
-            "name": "keyword.operator.moonscript"
-        }, 
-    
 
+
+        {
+            "match": "(\\s*(class)\\s*(\\w+))", 
+            "name": "meta.variable.language",
+            "captures": {
+                "1": { "name": "entity.name.type.class" },
+                "2": { "name": "storage.type.class" },
+                "3": { "name": "variable.language" }
+           }
+        },
+    
         { 
-            "name": "zmeta.entity.name.function",
-            "begin": "([a-zA-Z_]\\w*\\s*)(:)(?=(.*?(->|=>)))",
+            "name": "meta.entity.name.function",
+            "begin": "(\\s*[a-zA-Z_]\\w*\\s*(:)(?=(.*?(->|=>))))",
             "beginCaptures": {
                 "1": { "name": "entity.name.function" },
                 "2": { "name": "keyword.operator" }
@@ -107,6 +109,15 @@
         },
 
         {
+            "match": "=>|->", 
+            "name": "keyword.operator"
+        }, 
+        {
+            "match": "\\b(and|or|not)\\b", 
+            "name": "keyword.operator.moonscript"
+        }, 
+
+        {
             "match": "\\+|-|%|#|\\*|\\/|\\^|==?|~=|!=|\\\\|:|,|;|\\.|<=?|>=?|(?<!\\.)\\.{2}(?!\\.)", 
             "name": "keyword.operator.moonscript"
         }, 
@@ -119,22 +130,13 @@
             "name": "storage.type.class"
         }, 
         {
-            "match": "\\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|while|return|require)\\b", 
+            "match": "\\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|in|while|return|require)\\b", 
             "name": "keyword.control"
         }, 
         {
             "match": "\\b(self)\\b", 
             "name": "variable.language"
         }, 
-        {
-            "match": "(@?)([a-zA-Z_]\\w?)", 
-            "name": "meta.variable.language",
-            "captures": {
-                "1": { "name": "variable.language.self" },
-                "2": { "name": "variable.language" }
-           }
-        },
-        
         {
             "match": "\\b(nil)\\b", 
             "name": "constant.language.nil"
@@ -144,8 +146,8 @@
             "name": "constant.language.boolean"
         }, 
         {
-            "match": "(?<!\\.|\\\\)\\b(function|repeat|local|end)\\b(?!\\s*:)", 
-            "name": "invalid.illegal"
+            "match": "(?<!\\.|\\\\)\\b(function|repeat|local|end)\\b(?!\\s*:)",
+            "name": "invalid"
         }, 
         {
             "match": "(?<![^.]\\.|\\\\)\\b(assert|collectgarbage|dofile|error|getfenv|getmetatable|ipairs|loadfile|loadstring|module|next|pairs|pcall|print|rawequal|rawget|rawset|require|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall)\\b", 
@@ -158,8 +160,16 @@
         {
             "match": "(?<![^.]\\.|\\\\)\\b(coroutine\\.(create|resume|running|status|wrap|yield)|string\\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)|table\\.(concat|insert|maxn|remove|sort)|math\\.(abs|acos|asin|atan2?|ceil|cosh?|deg|exp|floor|fmod|frexp|ldexp|log|log10|max|min|modf|pow|rad|random|randomseed|sinh?|sqrt|tanh?)|io\\.(close|flush|input|lines|open|output|popen|read|tmpfile|type|write)|os\\.(clock|date|difftime|execute|exit|getenv|remove|rename|setlocale|time|tmpname)|package\\.(cpath|loaded|loadlib|path|preload|seeall)|debug\\.(debug|[gs]etfenv|[gs]ethook|getinfo|[gs]etlocal|[gs]etmetatable|getregistry|[gs]etupvalue|traceback))\\b", 
             "name": "support.function.library.moonscript"
+        },
+        {
+            "match": "(@?)([a-zA-Z_]\\w?)", 
+            "name": "meta.variable.language",
+            "captures": {
+                "1": { "name": "variable.language.self" },
+                "2": { "name": "variable.language" }
+           }
         }
-    ], 
+    ],
     "scopeName": "source.moonscript", 
     "uuid": "D363822C-639B-4450-A21A-F45643A6940F"
 }
