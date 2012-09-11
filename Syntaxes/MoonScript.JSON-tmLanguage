@@ -1,88 +1,88 @@
 {
-    "comment": "MoonScript Syntax: 0.0.1", 
+    "comment": "MoonScript Syntax: 0.0.1",
     "fileTypes": [
         "moon"
-    ], 
-    "name": "MoonScript", 
+    ],
+    "name": "MoonScript",
     "patterns": [
         {
             "captures": {
                 "1": {
                     "name": "punctuation.definition.comment.moonscript"
                 }
-            }, 
-            "match": "(--)(?!\\[\\[).*$\\n?", 
+            },
+            "match": "(--)(?!\\[\\[).*$\\n?",
             "name": "comment.line.double-dash.moonscript"
-        }, 
+        },
         {
-            "begin": "'", 
+            "begin": "'",
             "beginCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.begin.moonscript"
                 }
-            }, 
-            "end": "'", 
+            },
+            "end": "'",
             "endCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.end.moonscript"
                 }
-            }, 
-            "name": "string.quoted.single.moonscript", 
+            },
+            "name": "string.quoted.single.moonscript",
             "patterns": [
                 {
-                    "match": "\\\\.", 
+                    "match": "\\\\.",
                     "name": "constant.character.escape.moonscript"
                 }
             ]
-        }, 
+        },
         {
-            "begin": "\"", 
+            "begin": "\"",
             "beginCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.begin.moonscript"
                 }
-            }, 
-            "end": "\"", 
+            },
+            "end": "\"",
             "endCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.end.moonscript"
                 }
-            }, 
-            "name": "string.quoted.double.moonscript", 
+            },
+            "name": "string.quoted.double.moonscript",
             "patterns": [
                 {
-                    "match": "\\\\.", 
+                    "match": "\\\\.",
                     "name": "constant.character.escape.moonscript"
                 }
             ]
-        }, 
+        },
         {
-            "begin": "(?<!--)\\[(=*)\\[", 
+            "begin": "(?<!--)\\[(=*)\\[",
             "beginCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.begin.moonscript"
                 }
-            }, 
-            "end": "\\]\\1\\]", 
+            },
+            "end": "\\]\\1\\]",
             "endCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.end.moonscript"
                 }
-            }, 
+            },
             "name": "string.quoted.other.multiline.moonscript"
-        }, 
+        },
         {
-            "match": "(?<![\\d.])\\s0x[a-fA-F\\d]+|\\b\\d+(\\.\\d+)?([eE]-?\\d+)?|\\.\\d+([eE]-?\\d+)?", 
+            "match": "(?<![\\d.])\\s0x[a-fA-F\\d]+|\\b\\d+(\\.\\d+)?([eE]-?\\d+)?|\\.\\d+([eE]-?\\d+)?",
             "name": "constant.numeric.moonscript"
-        }, 
+        },
         {
-            "match": "\\b[A-Z_]*\\b(?!:)", 
+            "match": "\\b[A-Z_]*\\b(?!:)",
             "name": "constant.other"
-        }, 
+        },
 
 
         {
-            "match": "(\\s*(class)\\s*(\\w+))", 
+            "match": "(\\s*(class)\\s*(\\w+))",
             "name": "meta.variable.language",
             "captures": {
                 "1": { "name": "entity.name.type.class" },
@@ -90,8 +90,8 @@
                 "3": { "name": "variable.language" }
            }
         },
-    
-        { 
+
+        {
             "name": "meta.entity.name.function",
             "begin": "(\\s*[a-zA-Z_]\\w*\\s*(:)(?=(.*?(->|=>))))",
             "beginCaptures": {
@@ -105,64 +105,64 @@
             "patterns": [
                 { "include": "$self" }
             ]
-           
+
         },
 
         {
-            "match": "=>|->", 
+            "match": "=>|->",
             "name": "keyword.operator"
-        }, 
+        },
         {
-            "match": "\\b(and|or|not)\\b", 
+            "match": "\\b(and|or|not)\\b",
             "name": "keyword.operator.moonscript"
-        }, 
+        },
 
         {
-            "match": "\\+|-|%|#|\\*|\\/|\\^|==?|~=|!=|\\\\|:|,|;|\\.|<=?|>=?|(?<!\\.)\\.{2}(?!\\.)", 
+            "match": "\\+|-|%|#|\\*|\\/|\\^|==?|~=|!=|\\\\|:|,|;|\\.|<=?|>=?|(?<!\\.)\\.{2}(?!\\.)",
             "name": "keyword.operator.moonscript"
-        }, 
+        },
         {
-            "match": "{|}|\\[|\\]|\\(|\\)", 
+            "match": "{|}|\\[|\\]|\\(|\\)",
             "name": "storage.modifier"
-        }, 
+        },
         {
-            "match": "\\b(class|extends|super)\\b", 
+            "match": "\\b(class|extends|super)\\b",
             "name": "storage.type.class"
-        }, 
+        },
         {
-            "match": "\\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|in|while|return|require)\\b", 
+            "match": "\\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|in|while|return|require|break)\\b",
             "name": "keyword.control"
-        }, 
+        },
         {
-            "match": "\\b(self)\\b", 
+            "match": "\\b(self)\\b",
             "name": "variable.language"
-        }, 
+        },
         {
-            "match": "\\b(nil)\\b", 
+            "match": "\\b(nil)\\b",
             "name": "constant.language.nil"
-        }, 
+        },
         {
-            "match": "\\b(true|false)\\b", 
+            "match": "\\b(true|false)\\b",
             "name": "constant.language.boolean"
-        }, 
+        },
         {
             "match": "(?<!\\.|\\\\)\\b(function|repeat|local|end)\\b(?!\\s*:)",
-            "name": "invalid"
-        }, 
+            "name": "invalid.language.moonscript"
+        },
         {
-            "match": "(?<![^.]\\.|\\\\)\\b(assert|collectgarbage|dofile|error|getfenv|getmetatable|ipairs|loadfile|loadstring|module|next|pairs|pcall|print|rawequal|rawget|rawset|require|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall)\\b", 
+            "match": "(?<![^.]\\.|\\\\)\\b(assert|collectgarbage|dofile|error|getfenv|getmetatable|ipairs|loadfile|loadstring|module|next|pairs|pcall|print|rawequal|rawget|rawset|require|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall)\\b",
             "name": "support.function.moonscript"
-        }, 
+        },
         {
-            "match": "(?<![^.]\\.|\\\\)\\b(_G)\\b", 
+            "match": "(?<![^.]\\.|\\\\)\\b(_G)\\b",
             "name": "support.constant"
-        }, 
+        },
         {
-            "match": "(?<![^.]\\.|\\\\)\\b(coroutine\\.(create|resume|running|status|wrap|yield)|string\\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)|table\\.(concat|insert|maxn|remove|sort)|math\\.(abs|acos|asin|atan2?|ceil|cosh?|deg|exp|floor|fmod|frexp|ldexp|log|log10|max|min|modf|pow|rad|random|randomseed|sinh?|sqrt|tanh?)|io\\.(close|flush|input|lines|open|output|popen|read|tmpfile|type|write)|os\\.(clock|date|difftime|execute|exit|getenv|remove|rename|setlocale|time|tmpname)|package\\.(cpath|loaded|loadlib|path|preload|seeall)|debug\\.(debug|[gs]etfenv|[gs]ethook|getinfo|[gs]etlocal|[gs]etmetatable|getregistry|[gs]etupvalue|traceback))\\b", 
+            "match": "(?<![^.]\\.|\\\\)\\b(coroutine\\.(create|resume|running|status|wrap|yield)|string\\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)|table\\.(concat|insert|maxn|remove|sort)|math\\.(abs|acos|asin|atan2?|ceil|cosh?|deg|exp|floor|fmod|frexp|ldexp|log|log10|max|min|modf|pow|rad|random|randomseed|sinh?|sqrt|tanh?)|io\\.(close|flush|input|lines|open|output|popen|read|tmpfile|type|write)|os\\.(clock|date|difftime|execute|exit|getenv|remove|rename|setlocale|time|tmpname)|package\\.(cpath|loaded|loadlib|path|preload|seeall)|debug\\.(debug|[gs]etfenv|[gs]ethook|getinfo|[gs]etlocal|[gs]etmetatable|getregistry|[gs]etupvalue|traceback))\\b",
             "name": "support.function.library.moonscript"
         },
         {
-            "match": "(@?)([a-zA-Z_]\\w?)", 
+            "match": "(@?)([a-zA-Z_]\\w?)",
             "name": "meta.variable.language",
             "captures": {
                 "1": { "name": "variable.language.self" },
@@ -170,6 +170,6 @@
            }
         }
     ],
-    "scopeName": "source.moonscript", 
+    "scopeName": "source.moonscript",
     "uuid": "D363822C-639B-4450-A21A-F45643A6940F"
 }
