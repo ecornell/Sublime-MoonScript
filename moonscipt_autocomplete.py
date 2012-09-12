@@ -83,7 +83,6 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
         return True
 
 
-
     def on_query_completions(self, view, prefix, locations):
 
         self.view = view
@@ -103,8 +102,6 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
             return self.return_completions(view, prefix)
 
         self.fileTS = currentFileTS
-
-
 
         return self.return_completions(view, prefix)
 
@@ -351,9 +348,6 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
             elif cmd == 'true':
 
                 True
-
-
-
 
             else:
                 print 'cmd not parsed - %s - %s' % (cmd, str(a) )
