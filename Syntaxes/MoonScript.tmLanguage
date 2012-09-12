@@ -124,25 +124,37 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b[A-Z]*\b(?!:)</string>
+			<string>\b[A-Z_]*\b(?!:)</string>
 			<key>name</key>
-			<string>support.constant</string>
+			<string>constant.other</string>
 		</dict>
 		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.type.class</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>storage.type.class</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>variable.language</string>
+				</dict>
+			</dict>
 			<key>match</key>
-			<string>=&gt;|-&gt;</string>
+			<string>(\s*(class)\s*(\w+))</string>
 			<key>name</key>
-			<string>keyword.operator</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(and|or|not)\b</string>
-			<key>name</key>
-			<string>keyword.operator.moonscript</string>
+			<string>meta.variable.language</string>
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>([a-zA-Z_]\w*\s*)(:)(?=(.*?(-&gt;|=&gt;)))</string>
+			<string>(\s*[a-zA-Z_]\w*\s*(:)(?=(.*?(-&gt;|=&gt;))))</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>1</key>
@@ -168,7 +180,7 @@
 				</dict>
 			</dict>
 			<key>name</key>
-			<string>zmeta.entity.name.function</string>
+			<string>meta.entity.name.function</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -176,6 +188,18 @@
 					<string>$self</string>
 				</dict>
 			</array>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>=&gt;|-&gt;</string>
+			<key>name</key>
+			<string>keyword.operator</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(and|or|not)\b</string>
+			<key>name</key>
+			<string>keyword.operator.moonscript</string>
 		</dict>
 		<dict>
 			<key>match</key>
@@ -197,7 +221,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|while|return|require)\b</string>
+			<string>\b(if|then|else|elseif|export|import|from|switch|when|with|using|do|for|in|while|return|require|break)\b</string>
 			<key>name</key>
 			<string>keyword.control</string>
 		</dict>
@@ -206,6 +230,42 @@
 			<string>\b(self)\b</string>
 			<key>name</key>
 			<string>variable.language</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(nil)\b</string>
+			<key>name</key>
+			<string>constant.language.nil</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(true|false)\b</string>
+			<key>name</key>
+			<string>constant.language.boolean</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(?&lt;!\.|\\)\b(function|repeat|local|end)\b(?!\s*:)</string>
+			<key>name</key>
+			<string>invalid</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(?&lt;![^.]\.|\\)\b(assert|collectgarbage|dofile|error|getfenv|getmetatable|ipairs|loadfile|loadstring|module|next|pairs|pcall|print|rawequal|rawget|rawset|require|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall)\b</string>
+			<key>name</key>
+			<string>support.function.moonscript</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(?&lt;![^.]\.|\\)\b(_G)\b</string>
+			<key>name</key>
+			<string>support.constant</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(?&lt;![^.]\.|\\)\b(coroutine\.(create|resume|running|status|wrap|yield)|string\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)|table\.(concat|insert|maxn|remove|sort)|math\.(abs|acos|asin|atan2?|ceil|cosh?|deg|exp|floor|fmod|frexp|ldexp|log|log10|max|min|modf|pow|rad|random|randomseed|sinh?|sqrt|tanh?)|io\.(close|flush|input|lines|open|output|popen|read|tmpfile|type|write)|os\.(clock|date|difftime|execute|exit|getenv|remove|rename|setlocale|time|tmpname)|package\.(cpath|loaded|loadlib|path|preload|seeall)|debug\.(debug|[gs]etfenv|[gs]ethook|getinfo|[gs]etlocal|[gs]etmetatable|getregistry|[gs]etupvalue|traceback))\b</string>
+			<key>name</key>
+			<string>support.function.library.moonscript</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -225,42 +285,6 @@
 			<string>(@?)([a-zA-Z_]\w?)</string>
 			<key>name</key>
 			<string>meta.variable.language</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(nil)\b</string>
-			<key>name</key>
-			<string>constant.language.nil</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(true|false)\b</string>
-			<key>name</key>
-			<string>constant.language.boolean</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(?&lt;!\.|\\)\b(function|repeat|local|end)\b(?!\s*:)</string>
-			<key>name</key>
-			<string>invalid.illegal</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(?&lt;![^.]\.|\\)\b(assert|collectgarbage|dofile|error|getfenv|getmetatable|ipairs|loadfile|loadstring|module|next|pairs|pcall|print|rawequal|rawget|rawset|require|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall)\b</string>
-			<key>name</key>
-			<string>support.function.moonscript</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(?&lt;![^.]\.|\\)\b(_G)\b</string>
-			<key>name</key>
-			<string>support.constant</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(?&lt;![^.]\.|\\)\b(coroutine\.(create|resume|running|status|wrap|yield)|string\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)|table\.(concat|insert|maxn|remove|sort)|math\.(abs|acos|asin|atan2?|ceil|cosh?|deg|exp|floor|fmod|frexp|ldexp|log|log10|max|min|modf|pow|rad|random|randomseed|sinh?|sqrt|tanh?)|io\.(close|flush|input|lines|open|output|popen|read|tmpfile|type|write)|os\.(clock|date|difftime|execute|exit|getenv|remove|rename|setlocale|time|tmpname)|package\.(cpath|loaded|loadlib|path|preload|seeall)|debug\.(debug|[gs]etfenv|[gs]ethook|getinfo|[gs]etlocal|[gs]etmetatable|getregistry|[gs]etupvalue|traceback))\b</string>
-			<key>name</key>
-			<string>support.function.library.moonscript</string>
 		</dict>
 	</array>
 	<key>scopeName</key>

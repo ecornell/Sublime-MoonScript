@@ -1,0 +1,17 @@
+{
+	// you may set specific environment variables here
+	// e.g "env": { "PATH": "$HOME/go/bin:$PATH" }
+	// in values, $PATH and ${PATH} are replaced with
+	// the corresponding environment(PATH) variable, if it exists.
+	"env": {},
+
+
+	// Whether or not ms_complete is enabled
+	"ms_complete_enabled": true,
+
+	// the command that shall be called for gocode, this can be the command name
+	// or absolute path to a binary e.g. `/go/bin/gocode`
+	"moonc_cmd": "/usr/local/bin/moonc",
+
+	"auto_complete_triggers": [ {"selector": "source.moonscript", "characters": "."} ]
+}

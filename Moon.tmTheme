@@ -9,53 +9,38 @@
 		<dict>
 			<key>settings</key>
 			<dict>
-				<key>background</key>
-				<string>#171822</string>
-
-				<key>caret</key>
-				<string>#F8F8F0</string>
-				
-				<key>foreground</key>
-				<string>#F8F8F2</string>
-				
-				<key>invisibles</key>
-				<string>#3B3A32</string>
-				
-				<key>lineHighlight</key>
-				<string>#3E3D32</string>
-				
-				<key>selection</key>
-				<string>#49483E</string>
-				
-				<key>findHighlight</key>
-				<string>#FFE792</string>
-				
-				<key>findHighlightForeground</key>
-				<string>#000000</string>
-				
-				<key>selectionBorder</key>
-				<string>#222218</string>
-				
 				<key>activeGuide</key>
 				<string>#9D550FB0</string>
-
-				<key>bracketsForeground</key>
-				<string>#F8F8F2A5</string>
-				
-				<key>bracketsOptions</key>
-				<string>underline</string>
-
+				<key>background</key>
+				<string>#171822</string>
 				<key>bracketContentsForeground</key>
 				<string>#F8F8F2A5</string>
-				
 				<key>bracketContentsOptions</key>
 				<string>underline</string>
-
+				<key>bracketsForeground</key>
+				<string>#F8F8F2A5</string>
+				<key>bracketsOptions</key>
+				<string>underline</string>
+				<key>caret</key>
+				<string>#F8F8F0</string>
+				<key>findHighlight</key>
+				<string>#FFE792</string>
+				<key>findHighlightForeground</key>
+				<string>#000000</string>
+				<key>foreground</key>
+				<string>#F8F8F2</string>
+				<key>invisibles</key>
+				<string>#3B3A32</string>
+				<key>lineHighlight</key>
+				<string>#3E3D32</string>
+				<key>selection</key>
+				<string>#49483E</string>
+				<key>selectionBorder</key>
+				<string>#222218</string>
 				<key>tagsOptions</key>
 				<string>stippled_underline</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Comment</string>
@@ -67,7 +52,6 @@
 				<string>#686E6A</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>String</string>
@@ -79,7 +63,6 @@
 				<string>#A2EF4E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Number</string>
@@ -91,7 +74,6 @@
 				<string>#FFA312</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Built-in constant</string>
@@ -100,10 +82,9 @@
 			<key>settings</key>
 			<dict>
 				<key>foreground</key>
-				<string>#AE81FF</string>
+				<string>#CECF41</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>User-defined constant</string>
@@ -115,7 +96,6 @@
 				<string>#AE81FF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Variable</string>
@@ -127,7 +107,6 @@
 				<string>#EEEEFF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Variable</string>
@@ -139,7 +118,6 @@
 				<string>#8A8AFF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Keyword</string>
@@ -151,7 +129,6 @@
 				<string>#626FFF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Keyword</string>
@@ -163,7 +140,6 @@
 				<string>#AFFFAF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Storage</string>
@@ -177,7 +153,6 @@
 				<string>#FFAAFA</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Storage type</string>
@@ -191,7 +166,6 @@
 				<string>#626FFF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Class name</string>
@@ -205,7 +179,6 @@
 				<string>#A6E22E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Inherited class</string>
@@ -219,7 +192,6 @@
 				<string>#A6E22E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Function name</string>
@@ -233,7 +205,6 @@
 				<string>#A2AFFF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Function argument</string>
@@ -247,7 +218,6 @@
 				<string>#FD971F</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Tag name</string>
@@ -261,7 +231,6 @@
 				<string>#F92672</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Tag attribute</string>
@@ -275,7 +244,6 @@
 				<string>#A6E22E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Library function</string>
@@ -289,7 +257,6 @@
 				<string>#66D9EF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Library constant</string>
@@ -303,7 +270,6 @@
 				<string>#66D9EF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Library class/type</string>
@@ -317,7 +283,6 @@
 				<string>#66D9EF</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Library variable</string>
@@ -329,7 +294,6 @@
 				<string></string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Invalid</string>
@@ -345,7 +309,6 @@
 				<string>#F8F8F0</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>Invalid deprecated</string>
@@ -359,7 +322,6 @@
 				<string>#F8F8F0</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>JSON String</string>
@@ -371,7 +333,6 @@
 				<string>#CFCFC2</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>diff.header</string>
@@ -383,7 +344,6 @@
 				<string>#75715E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>diff.deleted</string>
@@ -395,7 +355,6 @@
 				<string>#F92672</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>diff.inserted</string>
@@ -407,7 +366,6 @@
 				<string>#A6E22E</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>name</key>
 			<string>diff.changed</string>
@@ -419,7 +377,6 @@
 				<string>#E6DB74</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>scope</key>
 			<string>constant.numeric.line-number.find-in-files - match</string>
@@ -429,7 +386,6 @@
 				<string>#AE81FFA0</string>
 			</dict>
 		</dict>
-
 		<dict>
 			<key>scope</key>
 			<string>entity.name.filename.find-in-files</string>
@@ -439,7 +395,6 @@
 				<string>#E6DB74</string>
 			</dict>
 		</dict>
-
 	</array>
 	<key>uuid</key>
 	<string>D8D5E82E-3D5B-46B5-B38E-8C841C21347D</string>

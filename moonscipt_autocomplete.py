@@ -1,147 +1,199 @@
 import sublime, sublime_plugin
 
+import moonscript_common as ms
+
 import subprocess, re, os, threading, tempfile, datetime, uuid
 from subprocess import Popen, PIPE
 
 
-try:
-    STARTUP_INFO = subprocess.STARTUPINFO()
-    STARTUP_INFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    STARTUP_INFO.wShowWindow = subprocess.SW_HIDE
-except (AttributeError):
-    STARTUP_INFO = None
+AC_OPTS = True
+# AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
 
-AC_OPTS = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS       
+PAT_PARSE = re.compile(
+    r'(?P<g1>{)|'
+    r'(?P<g2>})|'
+    r'(?P<g3>\[\d+\])|'
+    r'(?P<g4>""")|'
+    r'(?P<g5>\n)'
+    )
 
-# from subprocess import check_output
+def pat_parse_repl( match ):
+    value = ''
+    if match.group('g1'):
+        value = '['
+    elif match.group('g2'):
+        value = ']'
+    elif match.group('g3'):
+        value = ''
+    elif match.group('g4'):
+        value = '"\'"'
+    elif match.group('g5'):
+        value = ','
+    return value
+
+def uniq(l):
+    seen = set()
+    return [value for value in l if value[0] not in seen and not seen.add(value[0])]
 
 
 class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
-    sugs = []
+    def __init__(self):
+        self.reparse_timer = None
+        self.reparse_delay = 1000
+
+        self.sugs = []
+        self.fileTS = None
+
+        self.view = None
+        self.locations = None
+
+
+    def return_completions(self, view, prefix):
+
+        fSugs = []
+
+        for s in self.sugs:
+            w = s[1]
+            f = True
+            for l in prefix:
+                if l not in w:
+                    f = False
+                    break
+            if f:
+                fSugs.append(s)
+                # if len(fSugs) > 100:
+                    # break
+
+        return fSugs
+
+    def is_moonscript(self, view):
+
+        print view.scope_name(0)
+
+        pos = 0
+        if self.locations:
+            pos = self.locations[0]
+
+        scopes = view.scope_name(pos).split()
+
+        if ('source.moonscript' not in scopes) or (ms.setting('ms_complete_enabled', False) is not True):
+            return False
+
+        return True
+
 
     def on_query_completions(self, view, prefix, locations):
 
-        pos = locations[0]
-        scopes = view.scope_name(pos).split()
+        self.view = view
+        self.prefix = prefix
+        self.locations = locations
 
-        if 'source.moonscript' not in scopes :
+        if not self.is_moonscript(view):
             return []
-       
 
-        args = ['moonc', '-T','/Users/eli/dev/projects/WordPile/src/test.moon']
-        out, err, _ = self.runcmd(args)
+        currentFile = view.file_name()
+        if currentFile == None:
+            return []
 
+        currentFileTS = os.path.getmtime(currentFile)
+
+        if self.fileTS == currentFileTS:
+            return self.return_completions(view, prefix)
+
+        self.fileTS = currentFileTS
+
+        return self.return_completions(view, prefix)
+
+
+    def addSug(self, s, t, depth=0):
+
+        self.sugs.append( ('%s\t%s' % ( str(s), str(t) ) , str(s) ) )
+
+
+    def restart_reparse_timer(self, timeout):
+        if self.reparse_timer != None:
+            self.reparse_timer.cancel()
+        self.reparse_timer = threading.Timer(timeout, sublime.set_timeout,
+                                               [self.reparse, 0])
+        self.reparse_timer.start()
+
+
+    def reparse(self):
+
+        currentFile = self.view.file_name()
+
+        cmd = ms.setting('moonc_cmd', 'moonc')
+
+        args = [cmd, '-T', currentFile]
+        out, err, _ = ms.runcmd(args)
 
         if len(out) == 0:
-            return []
+            return self.sugs
 
         # print 'out->' + out
 
-        out = re.sub("\n", ",", out)
-        out = re.sub("\}", "]", out)
-        out = re.sub("\{", "[", out)
-        out = re.sub("\[\d+\]", "", out)
-        out = re.sub('"""', '"\'"', out)
-        
+        out = PAT_PARSE.sub(pat_parse_repl, out)
+
+        # print 'out->' + out
+
         tree = eval(out[:-1])
 
         # print 'tree->' + str(tree)
 
         self.sugs = []
 
-        
-        # for n in tree:
         self.parse( tree, 1 )
 
-        return list(set(self.sugs))
-        # return [ ('test','test') ]
-
-
-    def addSug(self, s, t):
-
-        self.sugs.append( ('~%s\t%s' % (str(s), str(t) ) , str(s) ) )
-
+        self.sugs = uniq(self.sugs)
 
     def parse(self, a, depth):
 
-        # print ('-' * depth) + ' ' + str(a) 
+        # print ('-' * depth) + ' ' + str(a)
 
-        if isinstance( a[0], list ): 
+        if (len(a) == 0):
+            return True
+
+        if isinstance( a[0], list ):
             for p in a:
                 self.parse( p, depth + 1)
 
         else:
 
-            cmd = a[0]
+            # print 'cmd->' + str(cmd) + ' ' + str(a)
 
-            print 'cmd->' + str(cmd) + ' ' + str(a) 
+            if  not isinstance( a, list ):
+                return True
+
+            cmd = a[0]
 
             if cmd == 'assign':
 
                 for b in a[1]:
 
                     if isinstance( b, list ):
-                        self.addSug( b[1] , '@ ' + cmd )
+
+                        if b[0] == 'self':
+                            self.addSug( b[1] , '@ ' + cmd, depth)
 
                     else:
-                        self.addSug( str(b), cmd )
-            
+                        self.addSug( str(b), cmd, depth)
+
                 if isinstance( a[2][0], list):
                     self.parse( a[2], depth + 1)
+
+            elif cmd == 'call':
+
+                True
 
             elif cmd == 'class':
 
                 nm = a[1]
 
-                self.addSug( nm, cmd )
+                self.addSug( nm, cmd, depth )
 
                 self.parse( a[3], depth + 1)
 
-            elif cmd == 'props':
-
-                nm = a[1][0]
-
-                ty = a[1][1][0]
-
-                if ty == 'fndef':
-
-                    self.addSug( nm, ty )  
-
-                else:
-
-                    self.addSug( nm, cmd )
-
-                self.parse( a[1][1], depth + 1)
-
-            elif cmd == 'table':
-
-                for b in a[1]:
-
-                    if isinstance( b[0], list ):
-                        self.addSug( b[0][1] , '@ ' + cmd )
-
-                    else:
-                        self.addSug( str(b[0]), cmd )
-
-                    self.parse( b[1], depth + 1)
-
-
-            elif cmd == 'self':
-
-                True 
-
-            elif cmd == 'string':
-
-                True 
-
-            elif cmd == 'number':
-
-                True 
-
-            elif cmd == 'fndef':
-
-                self.parse( a[4], depth + 1)
 
             elif cmd == 'case':
 
@@ -157,9 +209,41 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                     self.parse( b, depth + 1)
 
-            elif cmd == 'switch':
+            elif cmd == 'dot':
+
+                True
+
+            elif cmd == 'exp':
+
+                if isinstance( a[1], list ):
+
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'explist':
+
+                if isinstance( a[1], list ):
+
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'export':
+
+                True
+
+            elif cmd == 'false':
+
+                True
+
+            elif cmd == 'for':
 
                 self.parse( a[2], depth + 1)
+
+            elif cmd == 'fndef':
+
+                self.parse( a[4], depth + 1)
+
+            elif cmd == 'foreach':
+
+                self.parse( a[3], depth + 1)
 
             elif cmd == 'if':
 
@@ -169,19 +253,99 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
 
                 self.parse( a[2], depth + 1)
 
-            elif cmd == 'true' or cmd == 'false' or cmd == 'nil':
+            elif cmd == 'index':
 
                 True
 
-            elif cmd == 'export':
+            elif cmd == 'length':
 
                 True
 
-            elif cmd == 'dot':
+            elif cmd == 'minus':
 
                 True
 
-            elif cmd == 'call':
+            elif cmd == 'nil':
+
+                True
+
+            elif cmd == 'not':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'number':
+
+                True
+
+            elif cmd == 'parens':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'props':
+
+                nm = a[1][0][1]
+
+                ty = a[1][1][0]
+
+                if ty == 'fndef':
+
+                    parms = a[1][1][1]
+
+                    if len(parms) > 0:
+                        nm = nm #+ '( ' + ', '.join(str(x[0]) for x in parms) + ' )'
+                    else:
+                        nm = nm #+ '!'
+
+                    self.addSug( nm, ty, depth )
+
+                else:
+
+                    self.addSug( nm, cmd, depth )
+
+                self.parse( a[1][1], depth + 1)
+
+            elif cmd == 'return':
+
+                if isinstance( a[1], list ):
+                    self.parse( a[1], depth + 1)
+
+            elif cmd == 'self':
+
+                True
+
+            elif cmd == 'string':
+
+                True
+
+            elif cmd == 'table':
+
+                for b in a[1]:
+                    if len(b) == 1:
+                        self.parse( b[0], depth + 1)
+                    else:
+                        if isinstance( b[0], list ):
+                            self.addSug( b[0][1] , '@ ' + cmd, depth )
+                        else:
+                            self.addSug( str(b[0]), cmd )
+                        self.parse( b[1], depth + 1)
+
+            elif cmd == 'switch':
+
+                self.parse( a[2], depth + 1)
+
+            elif cmd == 'update':
+
+                True
+
+            elif cmd == 'with':
+
+                self.parse( a[2], depth + 1)
+
+            elif cmd == 'while':
+
+                self.parse( a[1], depth + 1)
+
+            elif cmd == 'true':
 
                 True
 
@@ -189,37 +353,32 @@ class MoonScriptAutocomplete(sublime_plugin.EventListener):
                 print 'cmd not parsed - %s - %s' % (cmd, str(a) )
 
 
+    def on_activated(self, view):
+        # if is_supported_language(view) and get_setting("reparse_on_activated", True, view):
+        if self.is_moonscript(view):
+            self.view = view
+            self.restart_reparse_timer(0.1)
 
+    def on_post_save(self, view):
+        # if is_supported_language(view) and get_setting("reparse_on_save", True, view):
+        if self.is_moonscript(view):
+            self.view = view
+            self.restart_reparse_timer(0.1)
 
+    def on_modified(self, view):
+        if (self.reparse_delay <= 0) or not self.is_moonscript(view):
+            return
 
-    def runcmd(self, args, input=None, stdout=PIPE, stderr=PIPE, shell=False):
+        self.view = view
+        self.restart_reparse_timer(self.reparse_delay / 1000.0)
 
-        out = ""
-        err = ""
-        exc = None
+    def on_load(self, view):
+        return
+        # if self.cache_on_load and is_supported_language(view):
+            # warm_up_cache(view)
 
-        #old_env = os.environ.copy()
-        #os.environ.update(env())
-        try:
-            p = Popen(args, stdout=stdout, stderr=stderr, stdin=PIPE,
-                startupinfo=STARTUP_INFO, shell=shell)
-            if isinstance(input, unicode):
-                input = input.encode('utf-8')
-            out, err = p.communicate(input=input)
-            out = out.decode('utf-8') if out else ''
-            err = err.decode('utf-8') if err else ''
-        except (Exception) as e:
-            # err = u'Error while running %s: %s' % (args[0], e)
-            print e
-            exc = e
-        #os.environ.update(old_env)
-        return (out, err, exc)
-
-
-
-
-        
-
-
-
+    def on_close(self, view):
+        return
+        # if self.remove_on_close and is_supported_language(view):
+            # translationunitcache.tuCache.remove(view.file_name())
 
