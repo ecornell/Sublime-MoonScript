@@ -7,6 +7,7 @@ indentation to Sublime Text.
 
 ## Sublime Installation
 
-1. Add a `MoonScript` directory to your packages directory.
-2. Check out this repository there.
-
+```
+cd ~/Library/Application Support/Sublime Text 2/Packages
+git clone https://github.com/ecornell/Sublime-MoonScript.git MoonScript
+```
